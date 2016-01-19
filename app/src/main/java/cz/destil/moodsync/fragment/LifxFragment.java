@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.TransitionDrawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Html;
@@ -21,7 +20,6 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import com.squareup.otto.Subscribe;
 import cz.destil.moodsync.R;
-import cz.destil.moodsync.activity.MainActivity;
 import cz.destil.moodsync.core.App;
 import cz.destil.moodsync.core.Config;
 import cz.destil.moodsync.event.ErrorEvent;
@@ -30,6 +28,7 @@ import cz.destil.moodsync.event.SuccessEvent;
 import cz.destil.moodsync.light.LocalColorSwitcher;
 import cz.destil.moodsync.light.MirroringHelper;
 import cz.destil.moodsync.service.LightsService;
+import cz.destil.moodsync.service.lifx.LifxLightsService;
 
 public class LifxFragment extends Fragment {
     @Bind(R.id.container) LinearLayout vContainer;
@@ -128,24 +127,8 @@ public class LifxFragment extends Fragment {
             stop();
         } else {
             showProgress(R.string.connecting);
-            mMirroring.askForPermission(getActivity());
+            mMirroring.askForPermission(this);
         }
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode != MirroringHelper.PERMISSION_CODE) {
-            return;
-        }
-        getActivity();
-        if (resultCode != Activity.RESULT_OK) {
-            showError(R.string.give_permission);
-            return;
-        }
-        mMirroring.permissionGranted(resultCode, data);
-        Intent intent = new Intent(getActivity(), LightsService.class);
-        intent.setAction("START");
-        getActivity().startService(intent);
     }
 
     @Subscribe
@@ -165,4 +148,22 @@ public class LifxFragment extends Fragment {
     public void onSuccess(SuccessEvent event) {
         hideProgress();
     }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode != MirroringHelper.PERMISSION_CODE) {
+            return;
+        }
+
+        if (resultCode != Activity.RESULT_OK) {
+            App.bus().post(new ErrorEvent(R.string.give_permission));
+            return;
+        }
+
+        mMirroring.permissionGranted(resultCode, data);
+        Intent intent = new Intent(getActivity(), LifxLightsService.class);
+        intent.setAction("START");
+        getActivity().startService(intent);
+    }
+
 }

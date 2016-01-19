@@ -33,7 +33,8 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".service.LightsService"/>
+        <service android:name=".service.lifx.LifxLightsService"/>
+        <service android:name=".service.hue.HueLightsService"/>
     </application>
 
 </manifest>

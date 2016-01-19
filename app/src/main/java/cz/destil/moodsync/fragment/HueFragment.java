@@ -7,7 +7,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +27,7 @@ import cz.destil.moodsync.event.SuccessEvent;
 import cz.destil.moodsync.light.LocalColorSwitcher;
 import cz.destil.moodsync.light.MirroringHelper;
 import cz.destil.moodsync.service.LightsService;
+import cz.destil.moodsync.service.hue.HueLightsService;
 
 public class HueFragment extends Fragment {
     @Bind(R.id.container) LinearLayout vContainer;
@@ -126,24 +126,8 @@ public class HueFragment extends Fragment {
             stop();
         } else {
             showProgress(R.string.connecting);
-            mMirroring.askForPermission(getActivity());
+            mMirroring.askForPermission(this);
         }
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode != MirroringHelper.PERMISSION_CODE) {
-            return;
-        }
-        getActivity();
-        if (resultCode != Activity.RESULT_OK) {
-            showError(R.string.give_permission);
-            return;
-        }
-        mMirroring.permissionGranted(resultCode, data);
-        Intent intent = new Intent(getActivity(), LightsService.class);
-        intent.setAction("START");
-        getActivity().startService(intent);
     }
 
     @Subscribe
@@ -162,5 +146,22 @@ public class HueFragment extends Fragment {
     @Subscribe
     public void onSuccess(SuccessEvent event) {
         hideProgress();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode != MirroringHelper.PERMISSION_CODE) {
+            return;
+        }
+
+        if (resultCode != Activity.RESULT_OK) {
+            App.bus().post(new ErrorEvent(R.string.give_permission));
+            return;
+        }
+
+        mMirroring.permissionGranted(resultCode, data);
+        Intent intent = new Intent(getActivity(), HueLightsService.class);
+        intent.setAction("START");
+        getActivity().startService(intent);
     }
 }

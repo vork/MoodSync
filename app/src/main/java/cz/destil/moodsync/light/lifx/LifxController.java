@@ -105,7 +105,6 @@ public class LifxController extends LightsController {
 
    class LifxTimeoutTask extends TimeoutTask {
 
-
     @Override
     public void postExecute() {
       int numLights = mNetworkContext.getAllLightsCollection().getLights().size();

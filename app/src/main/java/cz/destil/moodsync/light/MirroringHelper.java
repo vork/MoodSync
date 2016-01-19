@@ -11,6 +11,7 @@ import android.media.Image;
 import android.media.ImageReader;
 import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
+import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
 
 import java.io.ByteArrayOutputStream;
@@ -49,9 +50,9 @@ public class MirroringHelper {
         mMetrics = App.get().getResources().getDisplayMetrics();
     }
 
-    public void askForPermission(Activity activity) {
+    public void askForPermission(Fragment fragment) {
         mMirroring = true;
-        activity.startActivityForResult(mProjectionManager.createScreenCaptureIntent(), PERMISSION_CODE);
+        fragment.startActivityForResult(mProjectionManager.createScreenCaptureIntent(), PERMISSION_CODE);
     }
 
     public void stop() {
@@ -76,6 +77,9 @@ public class MirroringHelper {
     }
 
     public void permissionGranted(int resultCode, Intent data) {
+        if(mMediaProjection != null) {
+            return;
+        }
         mMediaProjection = mProjectionManager.getMediaProjection(resultCode, data);
     }
 

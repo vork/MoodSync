@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.net.wifi.WifiManager;
 import android.os.IBinder;
 
+import android.util.Log;
 import com.squareup.otto.Subscribe;
 
 import cz.destil.moodsync.R;
@@ -16,22 +17,20 @@ import cz.destil.moodsync.core.App;
 import cz.destil.moodsync.core.Config;
 import cz.destil.moodsync.event.LocalColorEvent;
 import cz.destil.moodsync.light.ColorExtractor;
+import cz.destil.moodsync.light.LightsController;
 import cz.destil.moodsync.light.LocalColorSwitcher;
 import cz.destil.moodsync.light.MirroringHelper;
-import cz.destil.moodsync.light.lifx.LifxController;
-import cz.destil.moodsync.util.SleepTask;
 
 /**
  * Service which does all the work.
  *
  * @author David Vávra (david@vavra.me)
  */
-public class LightsService extends Service {
-    private MirroringHelper mMirroring;
-    private ColorExtractor mColorExtractor;
-    private LifxController mLifxController;
-    private WifiManager.MulticastLock mMulticastLock;
-    private LocalColorSwitcher mLocalSwitcher;
+public abstract class LightsService extends Service {
+    protected MirroringHelper mMirroring;
+    protected ColorExtractor mColorExtractor;
+    protected LightsController mActiveController;
+    protected LocalColorSwitcher mLocalSwitcher;
 
 
     @Override
@@ -44,7 +43,6 @@ public class LightsService extends Service {
         super.onCreate();
         mMirroring = MirroringHelper.get();
         mColorExtractor = ColorExtractor.get();
-        mLifxController = LifxController.get();
         mLocalSwitcher = LocalColorSwitcher.get();
         App.bus().register(this);
     }
@@ -57,58 +55,22 @@ public class LightsService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d(this.getClass().getCanonicalName(), "Action is: " + intent.getAction());
         if (intent.getAction().equals("START")) {
             start();
         } else if (intent.getAction().equals("STOP")) {
             stop();
         }
+
         return START_REDELIVER_INTENT;
     }
 
-    private void start() {
-        Intent i = new Intent(this, MainActivity.class);
-        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        PendingIntent pi = PendingIntent.getActivity(this, 0, i, 0);
-        Notification notification = new Notification.Builder(this).setSmallIcon(R.drawable.ic_notification).setContentTitle(getString(R.string
-                .mirroring)).setContentText(getString(R.string.tap_to_change))
-                .setContentIntent(pi).build();
-        startForeground(42, notification);
+    protected abstract void start();
 
-        WifiManager wifi;
-        wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-        mMulticastLock = wifi.createMulticastLock("lifx");
-        mMulticastLock.acquire();
-
-        mLifxController.start();
-        mColorExtractor.start(mMirroring, new ColorExtractor.Listener() {
-            @Override
-            public void onColorExtracted(int color) {
-                if (!mLocalSwitcher.isRunning()) {
-                    mLifxController.changeColor(color);
-                }
-            }
-        });
-    }
-
-    private void stop() {
-        mColorExtractor.stop();
-        mMirroring.stop();
-        mLifxController.signalStop();
-        new SleepTask(Config.FINAL_DELAY, new SleepTask.Listener() {
-            @Override
-            public void awoken() {
-                mLifxController.stop();
-                if (mMulticastLock != null) {
-                    mMulticastLock.release();
-                }
-                stopForeground(true);
-                stopSelf();
-            }
-        }).start();
-    }
+    protected abstract void stop();
 
     @Subscribe
     public void onNewLocalColor(LocalColorEvent event) {
-        mLifxController.changeColor(event.newColor);
+        mActiveController.changeColor(event.newColor);
     }
 }

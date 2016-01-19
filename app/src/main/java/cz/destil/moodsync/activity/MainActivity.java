@@ -1,9 +1,5 @@
 package cz.destil.moodsync.activity;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.TransitionDrawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -11,29 +7,12 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.text.Html;
-import android.view.View;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.ToggleButton;
-
-import com.squareup.otto.Subscribe;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import cz.destil.moodsync.R;
-import cz.destil.moodsync.core.App;
-import cz.destil.moodsync.core.Config;
-import cz.destil.moodsync.event.ErrorEvent;
-import cz.destil.moodsync.event.LocalColorEvent;
-import cz.destil.moodsync.event.SuccessEvent;
 import cz.destil.moodsync.fragment.HueFragment;
 import cz.destil.moodsync.fragment.LifxFragment;
-import cz.destil.moodsync.light.LocalColorSwitcher;
-import cz.destil.moodsync.light.MirroringHelper;
-import cz.destil.moodsync.service.LightsService;
 
 public class MainActivity extends FragmentActivity {
     @Bind(R.id.pager) ViewPager mPager;

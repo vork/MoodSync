@@ -41,7 +41,7 @@ public class LifxLightsService extends LightsService {
     mMulticastLock = wifi.createMulticastLock("lifx");
     mMulticastLock.acquire();
 
-    mActiveController.start();
+    mActiveController.start(); //TODO add groups
     mColorExtractor.start(mMirroring, new ColorExtractor.Listener() {
       @Override
       public void onColorExtracted(int color) {
@@ -49,7 +49,7 @@ public class LifxLightsService extends LightsService {
           mActiveController.changeColor(color);
         }
       }
-    });
+    }, ColorExtractor.COLOR_EXTRACT_ALL);
   }
 
   @Override

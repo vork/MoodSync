@@ -5,6 +5,12 @@ import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.text.Html;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -23,126 +29,58 @@ import cz.destil.moodsync.core.Config;
 import cz.destil.moodsync.event.ErrorEvent;
 import cz.destil.moodsync.event.LocalColorEvent;
 import cz.destil.moodsync.event.SuccessEvent;
+import cz.destil.moodsync.fragment.HueFragment;
+import cz.destil.moodsync.fragment.LifxFragment;
 import cz.destil.moodsync.light.LocalColorSwitcher;
 import cz.destil.moodsync.light.MirroringHelper;
 import cz.destil.moodsync.service.LightsService;
 
-public class MainActivity extends Activity {
+public class MainActivity extends FragmentActivity {
+    @Bind(R.id.pager) ViewPager mPager;
 
-    @Bind(R.id.container)
-    LinearLayout vContainer;
-    @Bind(R.id.name)
-    TextView vName;
-    @Bind(R.id.progress_layout)
-    LinearLayout vProgressLayout;
-    @Bind(R.id.progress_bar)
-    ProgressBar vProgressBar;
-    @Bind(R.id.progress_text)
-    TextView vProgressText;
-    @Bind(R.id.control)
-    ToggleButton vButton;
-
-    MirroringHelper mMirroring;
-    private LocalColorSwitcher mColorSwitcher;
+    private PagerAdapter mPagerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_system_switcher);
         ButterKnife.bind(this);
-        hideProgress();
-        vName.setText(Html.fromHtml(getString(R.string.app_name_r)));
-        mMirroring = MirroringHelper.get();
-        mColorSwitcher = LocalColorSwitcher.get();
-        vContainer.setBackgroundColor(mColorSwitcher.getPreviousColor());
-        vButton.setChecked(mMirroring.isRunning());
-        App.bus().register(this);
+
+        Fragment[] lightFragments = new Fragment[2];
+        lightFragments[0] = new LifxFragment();
+        lightFragments[1] = new HueFragment();
+
+        mPagerAdapter = new LightSystemSwitcherAdapter(getSupportFragmentManager(), lightFragments);
+        mPager.setAdapter(mPagerAdapter);
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        mColorSwitcher.stop();
-    }
-
-    @Override
-    protected void onDestroy() {
-        App.bus().unregister(this);
-        super.onDestroy();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        mColorSwitcher.start();
-    }
-
-    @OnClick(R.id.control)
-    public void controlButtonClicked() {
-        if (mMirroring.isRunning()) {
-            stop();
+    public void onBackPressed() {
+        if (mPager.getCurrentItem() == 0) {
+            // If the user is currently looking at the first step, allow the system to handle the
+            // Back button. This calls finish() on this activity and pops the back stack.
+            super.onBackPressed();
         } else {
-            showProgress(R.string.connecting);
-            mMirroring.askForPermission(this);
+            // Otherwise, select the previous step.
+            mPager.setCurrentItem(mPager.getCurrentItem() - 1);
         }
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode != MirroringHelper.PERMISSION_CODE) {
-            return;
+    private class LightSystemSwitcherAdapter extends FragmentStatePagerAdapter {
+        final Fragment[] mLightTypes;
+        public LightSystemSwitcherAdapter(FragmentManager fm, Fragment[] lightFragments) {
+            super(fm);
+            mLightTypes = lightFragments;
         }
-        if (resultCode != RESULT_OK) {
-            showError(R.string.give_permission);
-            return;
+
+        @Override
+        public Fragment getItem(int position) {
+            return mLightTypes[position];
         }
-        mMirroring.permissionGranted(resultCode, data);
-        Intent intent = new Intent(this, LightsService.class);
-        intent.setAction("START");
-        startService(intent);
-    }
 
-    @Subscribe
-    public void onNewLocalColor(LocalColorEvent event) {
-        ColorDrawable[] colors = {new ColorDrawable(event.previousColor), new ColorDrawable(event.newColor)};
-        TransitionDrawable trans = new TransitionDrawable(colors);
-        vContainer.setBackground(trans);
-        trans.startTransition(Config.DURATION_OF_COLOR_CHANGE);
-    }
-
-    @Subscribe
-    public void onError(ErrorEvent event) {
-        showError(event.textRes);
-    }
-
-    @Subscribe
-    public void onSuccess(SuccessEvent event) {
-        hideProgress();
-    }
-
-    private void stop() {
-        Intent intent = new Intent(this, LightsService.class);
-        intent.setAction("STOP");
-        startService(intent);
-    }
-
-    private void showProgress(int textResId) {
-        vProgressLayout.setVisibility(View.VISIBLE);
-        vProgressBar.setVisibility(View.VISIBLE);
-        vProgressText.setText(textResId);
-        vButton.setVisibility(View.GONE);
-    }
-
-    private void hideProgress() {
-        vProgressLayout.setVisibility(View.GONE);
-        vButton.setVisibility(View.VISIBLE);
-    }
-
-    private void showError(int textResId) {
-        vProgressLayout.setVisibility(View.VISIBLE);
-        vProgressBar.setVisibility(View.GONE);
-        vProgressText.setText(textResId);
-        vButton.setVisibility(View.GONE);
-        stop();
+        @Override
+        public int getCount() {
+            return mLightTypes.length;
+        }
     }
 }

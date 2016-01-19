@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">MoodSync for LIFX</string>
-    <string name="activity_name">MoodSync LIFX</string>
+    <string name="app_name">MoodSync</string>
+    <string name="lifx_name">MoodSync for LIFX</string>
+    <string name="hue_name">MoodSync for Hue</string>
+    <string name="activity_name">MoodSync</string>
     <string name="app_name_r"><![CDATA[MoodSync for LIFX<sup><small>®<small></sup>]]></string>
     <string name="turned_off">Turned off</string>
     <string name="turned_on">Turned on</string>
@@ -12,5 +14,8 @@
     <string name="connecting">Connecting to LIFX lights …</string>
     <string name="lifx_disconnected">LIFX lights disconnected</string>
     <string name="no_lights_found">No lights found on this network</string>
+
+<!-- TODO: Remove or change this placeholder text -->
+  <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

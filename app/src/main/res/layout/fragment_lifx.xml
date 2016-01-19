@@ -22,7 +22,7 @@
             android:paddingTop="50dp"
             android:id="@+id/name"
             android:gravity="center"
-            android:text="@string/app_name"/>
+            android:text="@string/lifx_name"/>
 
         <FrameLayout
             android:layout_width="match_parent"

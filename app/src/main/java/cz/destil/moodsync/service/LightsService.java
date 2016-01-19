@@ -16,9 +16,9 @@ import cz.destil.moodsync.core.App;
 import cz.destil.moodsync.core.Config;
 import cz.destil.moodsync.event.LocalColorEvent;
 import cz.destil.moodsync.light.ColorExtractor;
-import cz.destil.moodsync.light.LightsController;
 import cz.destil.moodsync.light.LocalColorSwitcher;
 import cz.destil.moodsync.light.MirroringHelper;
+import cz.destil.moodsync.light.lifx.LifxController;
 import cz.destil.moodsync.util.SleepTask;
 
 /**
@@ -29,7 +29,7 @@ import cz.destil.moodsync.util.SleepTask;
 public class LightsService extends Service {
     private MirroringHelper mMirroring;
     private ColorExtractor mColorExtractor;
-    private LightsController mLights;
+    private LifxController mLifxController;
     private WifiManager.MulticastLock mMulticastLock;
     private LocalColorSwitcher mLocalSwitcher;
 
@@ -44,7 +44,7 @@ public class LightsService extends Service {
         super.onCreate();
         mMirroring = MirroringHelper.get();
         mColorExtractor = ColorExtractor.get();
-        mLights = LightsController.get();
+        mLifxController = LifxController.get();
         mLocalSwitcher = LocalColorSwitcher.get();
         App.bus().register(this);
     }
@@ -79,12 +79,12 @@ public class LightsService extends Service {
         mMulticastLock = wifi.createMulticastLock("lifx");
         mMulticastLock.acquire();
 
-        mLights.start();
+        mLifxController.start();
         mColorExtractor.start(mMirroring, new ColorExtractor.Listener() {
             @Override
             public void onColorExtracted(int color) {
                 if (!mLocalSwitcher.isRunning()) {
-                    mLights.changeColor(color);
+                    mLifxController.changeColor(color);
                 }
             }
         });
@@ -93,11 +93,11 @@ public class LightsService extends Service {
     private void stop() {
         mColorExtractor.stop();
         mMirroring.stop();
-        mLights.signalStop();
+        mLifxController.signalStop();
         new SleepTask(Config.FINAL_DELAY, new SleepTask.Listener() {
             @Override
             public void awoken() {
-                mLights.stop();
+                mLifxController.stop();
                 if (mMulticastLock != null) {
                     mMulticastLock.release();
                 }
@@ -109,6 +109,6 @@ public class LightsService extends Service {
 
     @Subscribe
     public void onNewLocalColor(LocalColorEvent event) {
-        mLights.changeColor(event.newColor);
+        mLifxController.changeColor(event.newColor);
     }
 }

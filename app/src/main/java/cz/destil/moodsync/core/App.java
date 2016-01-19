@@ -8,6 +8,7 @@ import com.squareup.otto.Bus;
 import cz.destil.moodsync.BuildConfig;
 import cz.destil.moodsync.light.LightsController;
 import cz.destil.moodsync.light.MirroringHelper;
+import cz.destil.moodsync.light.lifx.LifxController;
 
 /**
  * Main application object.
@@ -19,7 +20,7 @@ public class App extends Application {
     static App sInstance;
     static Bus sBus;
     private MirroringHelper mMirroring;
-    private LightsController mLights;
+    private LifxController mLifxLights;
 
     @Override
     public void onCreate() {
@@ -30,9 +31,9 @@ public class App extends Application {
         sInstance = this;
         sBus = new Bus();
         mMirroring = MirroringHelper.get();
-        mLights = LightsController.get();
+        mLifxLights = LifxController.get();
         mMirroring.init();
-        mLights.init();
+        mLifxLights.init();
     }
 
     public static App get() {

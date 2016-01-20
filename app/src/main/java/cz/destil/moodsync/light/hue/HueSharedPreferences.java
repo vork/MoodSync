@@ -2,6 +2,8 @@ package cz.destil.moodsync.light.hue;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import com.philips.lighting.model.PHLight;
+import java.util.Map;
 
 /**
  * Created by benediktboss on 19/01/16.

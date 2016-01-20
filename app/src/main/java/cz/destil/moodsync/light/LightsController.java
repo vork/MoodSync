@@ -15,7 +15,7 @@ public abstract class LightsController {
     protected boolean mDisconnected;
     protected int mPreviousColor = -1;
 
-    public abstract void changeColor(int color);
+    public abstract void changeColor(int color, @ColorExtractor.ColorExtractMode int extractMode);
 
     public void init() {
         mWorkingFine = false;

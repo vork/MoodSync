@@ -7,6 +7,7 @@ import cz.destil.moodsync.core.BaseAsyncTask;
 import cz.destil.moodsync.core.Config;
 import cz.destil.moodsync.event.ErrorEvent;
 import cz.destil.moodsync.event.SuccessEvent;
+import cz.destil.moodsync.light.ColorExtractor;
 import cz.destil.moodsync.light.LightsController;
 import cz.destil.moodsync.util.Toas;
 import lifx.java.android.client.LFXClient;
@@ -30,7 +31,7 @@ public class LifxController extends LightsController {
   }
 
   @Override
-  public void changeColor(int color) {
+  public void changeColor(int color, @ColorExtractor.ColorExtractMode int extractMode) {
     if (mWorkingFine && color != mPreviousColor) {
       mNetworkContext.getAllLightsCollection().setColorOverDuration(convertColor(color), Config.DURATION_OF_COLOR_CHANGE);
       mPreviousColor = color;

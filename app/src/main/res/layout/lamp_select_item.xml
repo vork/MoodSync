@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/layout"
+    android:paddingTop="12dp"
+    android:paddingBottom="12dp"
+    android:descendantFocusability="blocksDescendants"
+    android:clickable="true"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:background="@android:drawable/list_selector_background"
+    >
+
+  <TextView
+      android:layout_width="wrap_content"
+      android:layout_height="match_parent"
+      android:id="@+id/lamp_name"
+      android:text="Lamp"
+      android:textStyle="normal"
+      android:typeface="sans"
+      android:textAlignment="center"
+      android:singleLine="true"
+      android:layout_gravity="left"
+      android:gravity="center|left"
+      android:layout_marginLeft="16dp"
+      android:layout_marginTop="6dp"
+      android:layout_weight="1"
+      android:layout_marginRight="12dp"
+      android:textSize="16sp"
+      android:focusable="false"
+      android:focusableInTouchMode="false"
+      />
+  <TextView
+      android:layout_width="wrap_content"
+      android:layout_height="match_parent"
+      android:id="@+id/extract_mode"
+      android:gravity="center|right"
+      android:textStyle="bold"
+      android:typeface="sans"
+      android:textSize="16sp"
+      android:text="Center"
+      android:layout_marginRight="16dp"
+      android:layout_marginTop="6dp"
+      android:layout_gravity="right"
+      android:focusable="false"
+      android:focusableInTouchMode="false"
+      />
+
+
+</LinearLayout>

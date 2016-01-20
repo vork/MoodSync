@@ -12,6 +12,7 @@ import cz.destil.moodsync.light.ColorExtractor;
 import cz.destil.moodsync.light.lifx.LifxController;
 import cz.destil.moodsync.service.LightsService;
 import cz.destil.moodsync.util.SleepTask;
+import java.util.List;
 
 /**
  * Created by benediktboss on 19/01/16.
@@ -42,14 +43,18 @@ public class LifxLightsService extends LightsService {
     mMulticastLock.acquire();
 
     mActiveController.start(); //TODO add groups
-    mColorExtractor.start(mMirroring, new ColorExtractor.Listener() {
+  /*  mColorExtractor.start(mMirroring, new ColorExtractor.Listener() {
+      @Override public void onColorExtracted(List<ColorExtractor.ColorGroup> colorGroups) {
+
+      }
+
       @Override
-      public void onColorExtracted(int color) {
+      public void onColorExtracted(int color, int extractorMode) {
         if (!mLocalSwitcher.isRunning()) {
-          mActiveController.changeColor(color);
+          mActiveController.changeColor(color, extractorMode);
         }
       }
-    }, ColorExtractor.COLOR_EXTRACT_ALL);
+    }, ColorExtractor.COLOR_EXTRACT_ALL);*/
   }
 
   @Override

@@ -50,9 +50,9 @@ public class MirroringHelper {
         mMetrics = App.get().getResources().getDisplayMetrics();
     }
 
-    public void askForPermission(Fragment fragment) {
+    public void askForPermission(Activity activity) {
         mMirroring = true;
-        fragment.startActivityForResult(mProjectionManager.createScreenCaptureIntent(), PERMISSION_CODE);
+        activity.startActivityForResult(mProjectionManager.createScreenCaptureIntent(), PERMISSION_CODE);
     }
 
     public void stop() {
@@ -100,6 +100,9 @@ public class MirroringHelper {
                         try {
                             Image img = mImageReader.acquireLatestImage();
                             ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                            if(img == null) {
+                                return;
+                            }
                             final Image.Plane[] planes = img.getPlanes();
                             final ByteBuffer buffer = (ByteBuffer) planes[0].getBuffer().rewind();
                             bitmap = Bitmap.createBitmap(img.getWidth(), img.getHeight(), Bitmap.Config.ARGB_8888);
@@ -108,6 +111,7 @@ public class MirroringHelper {
                             bos.close();
                             img.close();
                             mImageReader.close();
+                            mImageReader = null;
                             mVirtualDisplay.release();
                         } catch (IOException ignored) {
                         }
@@ -115,7 +119,18 @@ public class MirroringHelper {
 
                     @Override
                     public void postExecute() {
-                        listener.onBitmapAvailable(bitmap);
+                        Bitmap left, right, center, all;
+                        if(bitmap == null) {
+                            return;
+                        }
+                        center = Bitmap.createBitmap(bitmap, bitmap.getWidth() / 4, 0, (bitmap.getWidth() / 4) * 2, bitmap.getHeight());
+                        left = Bitmap.createBitmap(bitmap, 0, 0, (bitmap.getWidth() / 4), bitmap.getHeight());
+                        right = Bitmap.createBitmap(bitmap, (bitmap.getWidth() / 4) * 3, 0, bitmap.getWidth() / 4, bitmap.getHeight());
+                        all = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight());
+
+                        bitmap.recycle();
+
+                        listener.onBitmapAvailable(center, left, right, all);
                     }
                 }.start();
             }
@@ -123,6 +138,6 @@ public class MirroringHelper {
     }
 
     public interface Listener {
-        void onBitmapAvailable(Bitmap bitmap);
+        void onBitmapAvailable(Bitmap center, Bitmap left, Bitmap right, Bitmap all);
     }
 }

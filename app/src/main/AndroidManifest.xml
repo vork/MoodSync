@@ -21,7 +21,7 @@
         android:banner="@drawable/banner"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".activity.MainActivity"
+            android:name=".activity.HueConnectActivity"
             android:label="@string/activity_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -32,6 +32,12 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+
+        <activity android:name=".activity.MainActivity"
+            android:label="@string/activity_name"/>
+
+        <activity android:name=".activity.PushlinkActivity"
+            android:label="@string/activity_name"/>
 
         <service android:name=".service.lifx.LifxLightsService"/>
         <service android:name=".service.hue.HueLightsService"/>

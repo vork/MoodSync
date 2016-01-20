@@ -70,7 +70,7 @@ public abstract class LightsService extends Service {
     protected abstract void stop();
 
     @Subscribe
-    public void onNewLocalColor(LocalColorEvent event) {
-        mActiveController.changeColor(event.newColor);
+    public void onNewLocalColor(LocalColorEvent event, @ColorExtractor.ColorExtractMode int extractorMode) {
+        mActiveController.changeColor(event.newColor, extractorMode);
     }
 }
